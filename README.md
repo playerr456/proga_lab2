@@ -1,3 +1,21 @@
+## P.S Специально для Михаила
+
+Для компиляции кода я исправил ошибку, которую вы хотели посмотреть, но оставил ту строку закоментрованной (файл `ArraySequence.tpp`, строка 99). 
+Ошибка, которую выдает компилятор ниже:
+
+```bash
+ArraySequence.tpp:96:14:   required from here
+   96 | Sequence<T>* ArraySequence<T>::prepend(T item) {
+      |              ^~~~~~~~~~~~~~~~
+ArraySequence.tpp:99:27: error: 'void Sequence<T>::prependInPlace(T) [with T = int]' is protected within this context
+   99 |     result->prependInPlace(item);
+      |     ~~~~~~~~~~~~~~~~~~~~~~^~~~~~
+In file included from ArraySequence.h:3:
+Sequence.h:12:18: note: declared protected here
+   12 |     virtual void prependInPlace(T item) = 0;
+      |                  ^~~~~~~~~~~~~~
+```
+
 # Sequence Container Library
 
 ## proga_lab2
