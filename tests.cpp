@@ -102,12 +102,14 @@ void testSubSequenceAndConcat() {
     MutableArraySequence<int> seq2(data2, 2);
     Sequence<int>* combined = seq.concat(&seq2);
     
-    assert(combined == &seq);
+    assert(combined != &seq);
     assert(combined->getSize() == 7);
     assert(combined->get(5) == 6);
     assert(combined->get(6) == 7);
+    assert(seq.getSize() == 5);
     
     delete sub;
+    delete combined;
 }
 
 void testExceptions() {
