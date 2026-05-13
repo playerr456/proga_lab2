@@ -20,6 +20,10 @@ public:
     ArraySequence(T* items, int count);
     ArraySequence(const DynamicArray<T>& array);
     ArraySequence(const ArraySequence<T>& other);
+    ArraySequence(ArraySequence<T>&& other) noexcept; // Конструктор перемещения
+    ArraySequence(const DynamicArray<T>& array, int startIndex, int count); 
+    // Конструктор подмассива (для оптимизации getSubSequence)
+
     ~ArraySequence() override;
 
     T getFirst() const override;

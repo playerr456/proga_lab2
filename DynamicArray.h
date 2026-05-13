@@ -23,6 +23,10 @@ public:
     DynamicArray(int size);
     DynamicArray(T* items, int count);
     DynamicArray(const DynamicArray<T>& other);
+    DynamicArray(DynamicArray<T>&& other) noexcept; // Конструктор перемещения
+    DynamicArray(const DynamicArray<T>& other, int startIndex, int count); 
+    // Конструктор подмножества (для оптимизации getSubSequence)
+    
     ~DynamicArray();
 
     T get(int index) const;

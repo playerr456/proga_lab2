@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <utility>
 
 
 template <class T>
@@ -34,6 +35,15 @@ LinkedList<T>::LinkedList(const LinkedList<T>& other) {
         this->append(current->value);
         current = current->next;
     }
+}
+
+template <class T>
+LinkedList<T>::LinkedList(LinkedList<T>&& other) noexcept :
+    head(other.head), tail(other.tail), size(other.size) {
+    
+    other.head = nullptr;
+    other.tail = nullptr;
+    other.size = 0;
 }
 
 template <class T>

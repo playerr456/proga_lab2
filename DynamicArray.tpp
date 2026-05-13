@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <utility>
 
 
 template <class T>
@@ -38,6 +39,32 @@ DynamicArray<T>::DynamicArray(const DynamicArray<T>& other) {
 
     for (int i = 0; i < other.size; ++ i) 
         this->data[i] = other.data[i];
+}
+
+template <class T>
+DynamicArray<T>::DynamicArray(DynamicArray<T>&& other) noexcept :
+    data(other.data), size(other.size), capacity(other.capacity) {
+    
+    other.data = nullptr;
+    other.size = 0;
+    other.capacity = 0;
+}
+
+template <class T>
+DynamicArray<T>::DynamicArray(const DynamicArray<T>& other, int startIndex, int count) {
+
+    if (startIndex < 0 or startIndex + count > other.size)
+        throw std::out_of_range("index is out of range");
+
+    if (count < 0)
+        throw std::invalid_argument("count must be non-negative");
+
+    size = count;
+    capacity = count;
+    data = capacity ? new T[capacity] : nullptr;
+
+    for (int i = 0; i < count; ++ i)
+        data[i] = other.data[startIndex + i];
 }
 
 template <class T>
@@ -92,7 +119,9 @@ void DynamicArray<T>::resize(int newSize) {
     T* newData = new T[newCapacity]{};
 
     for (int i = 0; i < size; ++ i)
-        newData[i] = data[i]; 
+        newData[i] = std::move(data[i]);
+    // std::move меняет тип объекта на T&&, 
+    // что позволяет использовать конструктор перемещения, а не копирования
 
     delete[] data;
     data = newData;

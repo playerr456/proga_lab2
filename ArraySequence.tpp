@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <utility>
 
 
 template <class T>
@@ -15,6 +16,14 @@ ArraySequence<T>::ArraySequence(const DynamicArray<T>& array) :
 template <class T>
 ArraySequence<T>::ArraySequence(const ArraySequence<T>& other) :
     array(other.array) {}
+
+template <class T>
+ArraySequence<T>::ArraySequence(ArraySequence<T>&& other) noexcept :
+    array(std::move(other.array)) {}
+
+template <class T>
+ArraySequence<T>::ArraySequence(const DynamicArray<T>& array, int startIndex, int count) :
+    array(array, startIndex, count) {}
 
 template <class T>
 ArraySequence<T>::~ArraySequence() = default;
@@ -64,7 +73,7 @@ void ArraySequence<T>::prependInPlace(T item) {
     array.resize(oldSize + 1);
 
     for (int i = oldSize; i > 0; -- i)
-        array[i] = array[i - 1];
+        array[i] = std::move(array[i - 1]);
 
     array.set(item, 0);
 }
@@ -79,7 +88,7 @@ void ArraySequence<T>::insertAtInPlace(T item, int index) {
     array.resize(oldSize + 1);
 
     for (int i = oldSize; i > index; -- i)
-        array[i] = array[i - 1];
+        array[i] = std::move(array[i - 1]);
 
     array.set(item, index);
 }
@@ -96,7 +105,6 @@ template <class T>
 Sequence<T>* ArraySequence<T>::prepend(T item) {
 
     ArraySequence<T>* result = static_cast<ArraySequence<T>*>(this->instance());
-    // Sequence<T>* result = this->instance(); - ошибка доступа
     result->prependInPlace(item);
     return result;
 }
@@ -115,68 +123,31 @@ Sequence<T>* ArraySequence<T>::concat(const Sequence<T>* other) {
     if (other == nullptr)
         throw std::invalid_argument("other sequence is null");
 
-    ArraySequence<T>* result = static_cast<ArraySequence<T>*>(this->instance());
+    ArraySequence<T>* result = static_cast<ArraySequence<T>*>(this->clone());
 
-    for (int i = 0; i < other->getSize(); ++ i)
-        result->appendInPlace(other->get(i));
+    IEnumerator<T>* enumerator = other->getEnumerator();
+    while (enumerator->moveNext()) {
+        result->appendInPlace(enumerator->getCurrent());
+    }
 
+    delete enumerator;
     return result;
 }
-// сделать общий класс, в котором 
-
 
 template <class T>
 Sequence<T>* MutableArraySequence<T>::getSubSequence(int startIndex, int endIndex) const {
 
-    int size = this->array.getSize(); // .
-
-    if (startIndex < 0 or startIndex >= size)
-        throw std::out_of_range("index is out of range");
-
-    if (endIndex < 0 or endIndex > size)
-        throw std::out_of_range("index is out of range");
-
-    if (startIndex > endIndex)
-        throw std::out_of_range("start index cant be greater than end index");
-
     int count = endIndex - startIndex;
-    T* items = count ? new T[count] : nullptr;
-
-    for (int i = 0; i < count; ++ i)
-        items[i] = this->array.get(startIndex + i);
-
-    Sequence<T>* result = new MutableArraySequence<T>(items, count); // двойное копирование
-
-    delete[] items;
-    return result;
+    return new MutableArraySequence<T>(this->array, startIndex, count);
 }
 
 template <class T>
 Sequence<T>* ImmutableArraySequence<T>::getSubSequence(int startIndex, int endIndex) const {
 
-    int size = this->array.getSize();
-
-    if (startIndex < 0 or startIndex >= size)
-        throw std::out_of_range("index is out of range");
-
-    if (endIndex < 0 or endIndex > size)
-        throw std::out_of_range("index is out of range");
-
-    if (startIndex > endIndex)
-        throw std::out_of_range("start index cant be greater than end index");
-
     int count = endIndex - startIndex;
-    T* items = count ? new T[count] : nullptr;
-
-    for (int i = 0; i < count; ++ i)
-        items[i] = this->array.get(startIndex + i);
-
-    Sequence<T>* result = new ImmutableArraySequence<T>(items, count);
-
-    delete[] items;
-    return result;
+    return new ImmutableArraySequence<T>(this->array, startIndex, count);
 }
-// копипаст 
+
 
 template <class T>
 IEnumerator<T>* ArraySequence<T>::getEnumerator() const {

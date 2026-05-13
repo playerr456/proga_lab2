@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <utility>
 
 
 template <class T>
@@ -15,6 +16,16 @@ ListSequence<T>::ListSequence(const LinkedList<T>& list) :
 template <class T>
 ListSequence<T>::ListSequence(const ListSequence<T>& other) : 
     list(other.list) {}
+
+template <class T>
+ListSequence<T>::ListSequence(ListSequence<T>&& other) noexcept :
+    list(std::move(other.list)) {}
+
+template <class T>
+ListSequence<T>::ListSequence(LinkedList<T>&& list) :
+    list(std::move(list)) {}
+    // std::move меняет тип объекта на T&&, 
+    // что позволяет использовать конструктор перемещения LinkedList<T>
 
 template <class T>
 ListSequence<T>::~ListSequence() = default;
@@ -85,21 +96,22 @@ Sequence<T>* ListSequence<T>::concat(const Sequence<T>* other) {
     if (other == nullptr) 
         throw std::invalid_argument("other sequence is null");
 
-    ListSequence<T>* result = static_cast<ListSequence<T>*>(this->instance());
+    ListSequence<T>* result = static_cast<ListSequence<T>*>(this->clone());
 
-    for (int i = 0; i < other->getSize(); ++ i) 
-        result->appendInPlace(other->get(i));
+    IEnumerator<T>* enumerator = other->getEnumerator();
+    while (enumerator->moveNext()) {
+        result->appendInPlace(enumerator->getCurrent());
+    }
 
+    delete enumerator;
     return result;
 }
-// должен иметь линейную сложность
-// должен создать третий лист
 
 template <class T>
 Sequence<T>* MutableListSequence<T>::getSubSequence(int startIndex, int endIndex) const {
 
-    LinkedList<T>* subList = this->list.getSubList(startIndex, endIndex); // можно кпировать 1 раз
-    Sequence<T>* result = new MutableListSequence<T>(*subList);
+    LinkedList<T>* subList = this->list.getSubList(startIndex, endIndex);
+    Sequence<T>* result = new MutableListSequence<T>(std::move(*subList));
     delete subList;
     return result;
 }
@@ -107,8 +119,8 @@ Sequence<T>* MutableListSequence<T>::getSubSequence(int startIndex, int endIndex
 template <class T>
 Sequence<T>* ImmutableListSequence<T>::getSubSequence(int startIndex, int endIndex) const {
 
-    LinkedList<T>* subList = this->list.getSubList(startIndex, endIndex); // можно кпировать 1 раз
-    Sequence<T>* result = new ImmutableListSequence<T>(*subList);
+    LinkedList<T>* subList = this->list.getSubList(startIndex, endIndex);
+    Sequence<T>* result = new ImmutableListSequence<T>(std::move(*subList));
     delete subList;
     return result;
 }

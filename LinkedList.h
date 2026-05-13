@@ -32,6 +32,9 @@ public:
     LinkedList();
     LinkedList(T* items, int count);
     LinkedList(const LinkedList<T>& other);
+    LinkedList(LinkedList<T>&& other) noexcept; // Конструктор перемещения
+    // (Для списка не нужен конструктор подсписка, так как уже есть метод getSubList())
+
     ~LinkedList();
 
     T getFirst() const;

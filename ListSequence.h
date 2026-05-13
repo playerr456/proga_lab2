@@ -20,6 +20,10 @@ public:
     ListSequence(T* items, int count);
     ListSequence(const LinkedList<T>& list);
     ListSequence(const ListSequence<T>& other);
+    ListSequence(ListSequence<T>&& other) noexcept; // Конструктор перемещения
+    ListSequence(LinkedList<T>&& list); // Конструктор перемещения для типа LinkedList  
+    // Для оптимизации getSubSequence (чтобы не было лишнего копипаста)
+
     ~ListSequence() override;
 
     T getFirst() const override;
@@ -33,6 +37,7 @@ public:
 
     virtual Sequence<T>* concat(const Sequence<T>* other) override;
     virtual Sequence<T>* getSubSequence(int startIndex, int endIndex) const override = 0;
+    
     IEnumerator<T>* getEnumerator() const override;
 };
 
