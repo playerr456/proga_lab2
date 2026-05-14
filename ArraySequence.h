@@ -35,10 +35,11 @@ public:
     Sequence<T>* prepend(T item) override;
     Sequence<T>* insertAt(T item, int index) override;
 
-    Sequence<T>* concat(const Sequence<T>* other) override;
     virtual Sequence<T>* getSubSequence(int startIndex, int endIndex) const override = 0;
-    
+    Sequence<T>* concat(const Sequence<T>* other) override;
+
     Sequence<T>* from(int startIndex, int endIndex) const override;
+    Sequence<T>* where(bool (*func)(T)) const override;
     Sequence<T>* map(T (*func)(T)) const override;
     T reduce(T (*func)(T, T), T initial) const override;
 

@@ -117,6 +117,21 @@ Sequence<T>* ArraySequence<T>::insertAt(T item, int index) {
     return result;
 }
 
+
+template <class T>
+Sequence<T>* MutableArraySequence<T>::getSubSequence(int startIndex, int endIndex) const {
+
+    int count = endIndex - startIndex;
+    return new MutableArraySequence<T>(this->array, startIndex, count);
+}
+
+template <class T>
+Sequence<T>* ImmutableArraySequence<T>::getSubSequence(int startIndex, int endIndex) const {
+
+    int count = endIndex - startIndex;
+    return new ImmutableArraySequence<T>(this->array, startIndex, count);
+}
+
 template <class T>
 Sequence<T>* ArraySequence<T>::concat(const Sequence<T>* other) {
 
@@ -134,30 +149,24 @@ Sequence<T>* ArraySequence<T>::concat(const Sequence<T>* other) {
     return result;
 }
 
-template <class T>
-Sequence<T>* MutableArraySequence<T>::getSubSequence(int startIndex, int endIndex) const {
-
-    int count = endIndex - startIndex;
-    return new MutableArraySequence<T>(this->array, startIndex, count);
-}
-
-template <class T>
-Sequence<T>* ImmutableArraySequence<T>::getSubSequence(int startIndex, int endIndex) const {
-
-    int count = endIndex - startIndex;
-    return new ImmutableArraySequence<T>(this->array, startIndex, count);
-}
-
-
-template <class T>
-IEnumerator<T>* ArraySequence<T>::getEnumerator() const {
-    return array.getEnumerator();
-}
-
 
 template <class T>
 Sequence<T>* ArraySequence<T>::from(int startIndex, int endIndex) const {
     return this->getSubSequence(startIndex, endIndex);
+}
+
+template <class T>
+Sequence<T>* ArraySequence<T>::where(bool (*func)(T)) const {
+    Sequence<T>* res = this->getSubSequence(0, 0);
+    for (int i = 0; i < this->getSize(); ++i) {
+        T item = this->get(i);
+        if (func(item)) {
+            Sequence<T>* next = res->append(item);
+            if (next != res) delete res;
+            res = next;
+        }
+    }
+    return res;
 }
 
 template <class T>
@@ -180,4 +189,10 @@ T ArraySequence<T>::reduce(T (*func)(T, T), T initial) const {
         result = func(result, get(i));
     
     return result;
+}
+
+
+template <class T>
+IEnumerator<T>* ArraySequence<T>::getEnumerator() const {
+    return array.getEnumerator();
 }

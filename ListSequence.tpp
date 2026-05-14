@@ -66,6 +66,7 @@ void ListSequence<T>::insertAtInPlace(T item, int index) {
     list.insertAt(item, index); 
 }
 
+
 template <class T>
 Sequence<T>* ListSequence<T>::append(T item) {
 
@@ -90,22 +91,6 @@ Sequence<T>* ListSequence<T>::insertAt(T item, int index) {
     return result;
 }
 
-template <class T>
-Sequence<T>* ListSequence<T>::concat(const Sequence<T>* other) {
-
-    if (other == nullptr) 
-        throw std::invalid_argument("other sequence is null");
-
-    ListSequence<T>* result = static_cast<ListSequence<T>*>(this->clone());
-
-    IEnumerator<T>* enumerator = other->getEnumerator();
-    while (enumerator->moveNext()) {
-        result->appendInPlace(enumerator->getCurrent());
-    }
-
-    delete enumerator;
-    return result;
-}
 
 template <class T>
 Sequence<T>* MutableListSequence<T>::getSubSequence(int startIndex, int endIndex) const {
@@ -125,16 +110,48 @@ Sequence<T>* ImmutableListSequence<T>::getSubSequence(int startIndex, int endInd
     return result;
 }
 
-
 template <class T>
-IEnumerator<T>* ListSequence<T>::getEnumerator() const {
-    return list.getEnumerator();
+Sequence<T>* ListSequence<T>::concat(const Sequence<T>* other) {
+
+    if (other == nullptr) 
+        throw std::invalid_argument("other sequence is null");
+
+    ListSequence<T>* result = static_cast<ListSequence<T>*>(this->clone());
+    IEnumerator<T>* enumerator = other->getEnumerator();
+
+    while (enumerator->moveNext()) {
+        result->appendInPlace(enumerator->getCurrent());
+    }
+
+    delete enumerator;
+    return result;
 }
 
 
 template <class T>
 Sequence<T>* ListSequence<T>::from(int startIndex, int endIndex) const {
     return this->getSubSequence(startIndex, endIndex);
+}
+
+template <class T>
+Sequence<T>* ListSequence<T>::where(bool (*func)(T)) const {
+
+    Sequence<T>* res = this->getSubSequence(0, 0);
+    IEnumerator<T>* enumerator = this->getEnumerator();
+
+    while (enumerator->moveNext()) {
+        T item = enumerator->getCurrent();
+
+        if (func(item)) {
+            Sequence<T>* next = res->append(item);
+
+            if (next != res) delete res;
+            res = next;
+        }
+    }
+    
+    delete enumerator;
+    return res;
 }
 
 template <class T>
@@ -167,4 +184,10 @@ T ListSequence<T>::reduce(T (*func)(T, T), T initial) const {
     
     delete enumerator;
     return result;
+}
+
+
+template <class T>
+IEnumerator<T>* ListSequence<T>::getEnumerator() const {
+    return list.getEnumerator();
 }

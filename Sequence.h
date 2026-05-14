@@ -28,6 +28,7 @@ public:
     virtual Sequence<T>* concat(const Sequence<T>* other) = 0;
 
     virtual Sequence<T>* from(int startIndex, int endIndex) const = 0;
+    virtual Sequence<T>* where(bool (*func)(T)) const = 0;
     virtual Sequence<T>* map(T (*func)(T)) const = 0;
     virtual T reduce(T (*func)(T, T), T initial) const = 0;
 
