@@ -37,7 +37,11 @@ public:
 
     Sequence<T>* concat(const Sequence<T>* other) override;
     virtual Sequence<T>* getSubSequence(int startIndex, int endIndex) const override = 0;
-    // 
+    
+    Sequence<T>* from(int startIndex, int endIndex) const override;
+    Sequence<T>* map(T (*func)(T)) const override;
+    T reduce(T (*func)(T, T), T initial) const override;
+
     IEnumerator<T>* getEnumerator() const override;
 };
 

@@ -27,5 +27,9 @@ public:
     virtual Sequence<T>* getSubSequence(int startIndex, int endIndex) const = 0;
     virtual Sequence<T>* concat(const Sequence<T>* other) = 0;
 
+    virtual Sequence<T>* from(int startIndex, int endIndex) const = 0;
+    virtual Sequence<T>* map(T (*func)(T)) const = 0;
+    virtual T reduce(T (*func)(T, T), T initial) const = 0;
+
     IEnumerator<T>* getEnumerator() const override = 0;
 };

@@ -124,9 +124,47 @@ Sequence<T>* ImmutableListSequence<T>::getSubSequence(int startIndex, int endInd
     delete subList;
     return result;
 }
-// можно объединить в 1 функции (без копипаста)
+
 
 template <class T>
 IEnumerator<T>* ListSequence<T>::getEnumerator() const {
     return list.getEnumerator();
+}
+
+
+template <class T>
+Sequence<T>* ListSequence<T>::from(int startIndex, int endIndex) const {
+    return this->getSubSequence(startIndex, endIndex);
+}
+
+template <class T>
+Sequence<T>* ListSequence<T>::map(T (*func)(T)) const {
+
+    Sequence<T>* result = this->getSubSequence(0, 0); 
+    IEnumerator<T>* enumerator = this->getEnumerator();
+
+    while (enumerator->moveNext()) {
+        Sequence<T>* nextResult = result->append(func(enumerator->getCurrent()));
+
+        if (nextResult != result) 
+            delete result; // Очищаем старую версию для Immutable
+
+        result = nextResult;
+    }
+    
+    delete enumerator;
+    return result;
+}
+
+template <class T>
+T ListSequence<T>::reduce(T (*func)(T, T), T initial) const {
+
+    T result = initial;
+    IEnumerator<T>* enumerator = this->getEnumerator();
+
+    while (enumerator->moveNext()) 
+        result = func(result, enumerator->getCurrent());
+    
+    delete enumerator;
+    return result;
 }

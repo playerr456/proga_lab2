@@ -153,3 +153,31 @@ template <class T>
 IEnumerator<T>* ArraySequence<T>::getEnumerator() const {
     return array.getEnumerator();
 }
+
+
+template <class T>
+Sequence<T>* ArraySequence<T>::from(int startIndex, int endIndex) const {
+    return this->getSubSequence(startIndex, endIndex);
+}
+
+template <class T>
+Sequence<T>* ArraySequence<T>::map(T (*func)(T)) const {
+
+    ArraySequence<T>* result = static_cast<ArraySequence<T>*>(this->clone());
+
+    for (int i = 0; i < getSize(); ++ i) 
+        result->array.set(func(get(i)), i);
+    
+    return result;
+}
+
+template <class T>
+T ArraySequence<T>::reduce(T (*func)(T, T), T initial) const {
+
+    T result = initial;
+    
+    for (int i = 0; i < getSize(); ++ i) 
+        result = func(result, get(i));
+    
+    return result;
+}
