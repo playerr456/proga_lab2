@@ -156,6 +156,50 @@ void testEnumerator() {
 }
 
 
+int square(int x) { return x * x; }
+int sum(int a, int b) { return a + b; }
+
+void testFunctional() {
+    std::cout << "Testing Functional Operations (from, map, reduce)..." << std::endl;
+    int data[] = {1, 2, 3, 4, 5};
+    MutableArraySequence<int> seq(data, 5);
+    
+    // Test from
+    Sequence<int>* sub = seq.from(1, 4); // {2, 3, 4}
+    assert(sub->getSize() == 3);
+    assert(sub->get(0) == 2);
+    
+    // Test map
+    Sequence<int>* mapped = sub->map(square); // {4, 9, 16}
+    assert(mapped->getSize() == 3);
+    assert(mapped->get(0) == 4);
+    assert(mapped->get(1) == 9);
+    assert(mapped->get(2) == 16);
+    
+    // Test reduce
+    int total = mapped->reduce(sum, 0); // 4 + 9 + 16 = 29
+    assert(total == 29);
+    
+    delete sub;
+    delete mapped;
+}
+
+bool isEven(int x) { return x % 2 == 0; }
+
+void testWhere() {
+    std::cout << "Testing Where..." << std::endl;
+    int data[] = {1, 2, 3, 4, 5, 6};
+    MutableArraySequence<int> seq(data, 6);
+    
+    Sequence<int>* even = seq.where(isEven); // {2, 4, 6}
+    assert(even->getSize() == 3);
+    assert(even->get(0) == 2);
+    assert(even->get(1) == 4);
+    assert(even->get(2) == 6);
+    
+    delete even;
+}
+
 int main() {
     try {
         testDynamicArray();
@@ -167,6 +211,8 @@ int main() {
         testSubSequenceAndConcat();
         testExceptions();
         testEnumerator();
+        testFunctional();
+        testWhere();
         
         std::cout << "\n-----------------------------" << std::endl;
         std::cout << "  ALL TESTS PASSED SUCCESSFULLY" << std::endl;
